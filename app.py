@@ -3,11 +3,11 @@ URL : tesla.iem.pw.edu.pl:9080/v2/monitor/{1-6}
             test: tesla.iem.pw.edu.pl:9080/v2/monitor/2
 Must be connected to school VPN to access this website
 1-6 Different people
-'''
-'''
+
 VPN domain: vpn.ee.pw.edu.pl
 VPN credentials: ISOD login
 '''
+
 import requests
 from storage import *
 import apiclient
@@ -23,6 +23,7 @@ import sys
 
 if __name__ == "__main__":
     print(get_new_data("2"))
+
     sys.exit(0)
 
 
