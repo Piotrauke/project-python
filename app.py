@@ -10,45 +10,60 @@ VPN credentials: ISOD login
 
 import requests
 from storage import *
-import apiclient
-import dash_app
-# import json
-import time
 from apiclient import *
+from dash_app import *
+from datetime import datetime
+import time
 import sys
+import threading
 
 
-# store = get_storage()
-# print(store)
+start_time = datetime.now()
+print(f" Application starting time is: {start_time}")
+stop_collector = False
+
+
+
+class DataCollectorThread(threading.Thread):
+    def run(self):
+        store = get_storage()
+        while True:
+
+            for i in map(str, range(1,7)):
+                add_measurements(i, get_new_data(i))
+                patient_id = i
+                expire_data(600) 
+                # print(get_storage())
+                time.sleep(1)     
+
+            if stop_collector:
+                print("stopping on request")
+                break
+
 
 if __name__ == "__main__":
-    print(get_new_data("2"))
-
-    sys.exit(0)
-
-
     init_storage()
-    store = get_storage()
-    print(store)
+    create_layout()
 
-    for i in range(20):
-        add_measurements("ania", {
-            "timestamp": 1111+i,
-            "values": [1,2,3,4,5,8+i],
-            "anomalies":[True,False,False,False,True,True]
 
-        } )
+    for i in map(str,range(1,7)):
+        add_measurements(i, get_new_data(i))
 
-    expire_data(5) #10*60 == 10 mins
-    print(get_storage())
+    collector = DataCollectorThread()
+    collector.start()
+    # print("waiting...")
     time.sleep(1)
 
+    try:
+        app.run_server(debug=True)
+    finally:
+        stop_collector = True
+        collector.join()
+        print("finished")
+        
 
 
-    print("Finished") 
-
-
-
-# d = requests.get('tesla.iem.pw.edu.pl:9080/v2/monitor/2')
-# d.json()
-# print(d)
+stop_time = datetime.now()
+time_diff = stop_time - start_time
+print(f"stop time: {stop_time}")
+print(f"Time Elapsed: {time_diff}") 
